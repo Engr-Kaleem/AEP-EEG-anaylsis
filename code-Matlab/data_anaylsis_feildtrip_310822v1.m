@@ -74,7 +74,7 @@ cfg = [];
 cfg.operation = 'subtract'; % define operation
 cfg.parameter = 'avg';   
 difference = ft_math(cfg, EEG_in, EEG_anti); % fine the differncce
-
+%
 
 % now plot the differnce 
 

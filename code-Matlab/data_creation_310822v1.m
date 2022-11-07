@@ -31,10 +31,10 @@ eeg_data = y([6:17, 4,1,3,5,4], :);
 
 
 %%  To plot some of rawdata  
-% for i=7:12
-% x=y(i,19200:19200*5);
-% plotfr(x,srate);
-% end;
+for i=7:12
+x=y(i,19200:19200*5);
+plotfr(x,srate);
+end;
 
 
 %% import in EEGLAB
