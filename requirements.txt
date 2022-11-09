@@ -1,0 +1,9 @@
+numpy
+scipy
+matplotlib
+mne
+pandas
+seaborn
+pyEDFlib
+pytest
+brainflow
