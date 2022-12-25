@@ -4,15 +4,16 @@ close all;
 clear all;
 subject_id = 'Sub_1';       % used to make a folder inside data folder
 FREQ = 1000;                 % used to make a folder inside data folder
-BMLD_TYPE = 'LLR';          % used to make a folder inside data folder
+stimdur = 'LLR';          % used to make a folder inside data folder
 
 %%    Path of file  you want to use.
 
 
-filedir = 'E:\MachineLearning\TestFiles\';
+filedir = 'E:\data\AEPdata';
 matfiles = dir(fullfile(testfiledir, '*.txt'));
-
 nfiles = length(matfiles);
+
+%% start eeglab
 eeglab;
 
 %%
@@ -105,7 +106,7 @@ for i=1:nfiles
     %% save  the data.
     
     % Create output dir if it does not exist
-    subject_dataset_dir = fullfile('D:\Google Drive\Upwork\AEPEEGanaylsis\data\Epoched_data', subject_id, BMLD_TYPE, num2str(FREQ));
+    subject_dataset_dir = fullfile('E:\data\AEPdata\Epoched_data', subject_id, stimdur, num2str(FREQ));
     if ~isdir(subject_dataset_dir)
         mkdir(subject_dataset_dir);
     end
