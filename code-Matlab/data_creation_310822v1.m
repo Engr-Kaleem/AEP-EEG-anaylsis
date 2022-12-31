@@ -2,17 +2,21 @@
 %% load .mat file
 close all; 
 clear all;
-subject_id = 'Sub_1';       % used to make a folder inside data folder
-FREQ = 1000;                 % used to make a folder inside data folder
-stimdur = 'LLR';          % used to make a folder inside data folder
+
+
+
+
 
 %%    Path of file  you want to use.
 
 
 filedir = 'E:\data\AEPdata';
-matfiles = dir(fullfile(testfiledir, '*.txt'));
+matfiles = dir(fullfile(filedir, '*.mat'));
 nfiles = length(matfiles);
 
+
+
+ 
 %% start eeglab
 eeglab;
 
@@ -22,11 +26,16 @@ eeglab;
 srate = 19200;
 new_srate = 2048;       % downsampled rate
 highpass_lowcutoff = 2;   % lower edge of the frequency pass band (Hz)
+highcutoff=200;
 
 %%
 
 for i=1:nfiles
-
+    subject_id = matfiles(i).name(1:5);       % used to make a folder inside data folder
+    FREQ = matfiles(i).name(11:13);                 % used to make a folder inside data folder
+    stimdur = matfiles(i).name(7:9);          % used to make a folder inside data folder
+    filename=[filedir,'\',matfiles(i).name]
+    
     load(filename) 
     time = y(1, :);
     stim = y(3, :);
@@ -34,22 +43,22 @@ for i=1:nfiles
 
 
     EEG = pop_importdata('dataformat','array','nbchan',0,'data','eeg_data','setname','raw_data','srate',srate,'pnts',0,'xmin',0);
-    [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'gui','off');
-    EEG = eeg_checkset( EEG );
-    
-    
-    %% add channel info
-    channels_out = {'Cz', 'CPz', 'FCz', 'Pz', 'FC5', 'FC6', 'C5', 'C6', 'CP5', 'CP6', 'T7', 'T8', 'Trigger','tim','stim_L','stim_r','raw_trig'};
-    channel_loc = struct('labels', channels_out);
-    EEG.chanlocs = eeg_checkchanlocs(channel_loc);
-    EEG = eeg_checkset(EEG);
-    
-    
-    %% resample
-    
-    EEG = pop_resample( EEG, new_srate);
-    [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'gui','off');
-    
+%     [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'gui','off');
+%     EEG = eeg_checkset( EEG );
+
+
+%% add channel info
+channels_out = {'Cz', 'CPz', 'FCz', 'Pz', 'FC5', 'FC6', 'C5', 'C6', 'CP5', 'CP6', 'T7', 'T8', 'Trigger','tim','stim_L','stim_r','raw_trig'};
+channel_loc = struct('labels', channels_out);
+EEG.chanlocs = eeg_checkchanlocs(channel_loc);
+% EEG = eeg_checkset(EEG);
+
+
+%% resample
+
+EEG = pop_resample( EEG, new_srate);
+[ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'gui','off');
+
     
     
     %% triggers
@@ -94,52 +103,32 @@ for i=1:nfiles
     
     %% filtering
     
-    EEG = pop_eegfiltnew(EEG, 'locutoff', highpass_lowcutoff, 'channels',[1:12] );
-    [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'setname','filtered_data','gui','off');
+    EEG = pop_eegfiltnew(EEG, 'locutoff', highpass_lowcutoff, 'hicutoff',highcutoff,'channels',[1:12] );
+
+% notch filter
+    EEG = pop_eegfiltnew(EEG, 'locutoff', 47, 'hicutoff', 53, 'channels',[1:12], 'revfilt',1);
     
     
     %% extract events
     EEG = pop_chanevent(EEG, 13,'edge','leading','edgelen',0,'delchan','off');
     [ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);
-    EEG = eeg_checkset( EEG );
+    %EEG = eeg_checkset( EEG );
     
     %% save  the data.
     
     % Create output dir if it does not exist
-    subject_dataset_dir = fullfile('E:\data\AEPdata\Epoched_data', subject_id, stimdur, num2str(FREQ));
-    if ~isdir(subject_dataset_dir)
-        mkdir(subject_dataset_dir);
-    end
+    subject_dataset_dir = fullfile('E:\data\Epoched_data');
+%     if ~isdir(subject_dataset_dir)
+%         mkdir(subject_dataset_dir);
+%     end
     
     
-    pop_saveset(EEG, 'filename', [subject_id,'_',BMLD_TYPE,'_',num2str(FREQ),'_epoched'], 'filepath', subject_dataset_dir);
+    pop_saveset(EEG, 'filename', [subject_id,'_',stimdur,'_',FREQ,'_epoched'], 'filepath', subject_dataset_dir);
     
-    
-    
-    
-
-
-
-
 end 
 
 
 
-
-% load ('D:\Google Drive\Upwork\AEPEEGanaylsis\data\Sub_1_LLR_1000Hz.mat');
-%%
-
-
-
-
-% filtering;
-
-%% separate 'y' for EEGLAB
-
-
-
-
-%% import in EEGLAB
 
 
 
