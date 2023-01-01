@@ -31,6 +31,7 @@ poststim=0.2
     
     
     %  define trails
+    cfg.channel={'Cz', 'CPz', 'FCz', 'Pz', 'FC5', 'FC6', 'C5', 'C6', 'CP5', 'CP6', 'T7', 'T8'}
     cfg.trialdef.eventtype      = 'trigger';
     cfg.trialdef.eventvalue     = [-1 1]; % the values of the stimulus trigger for the three conditions
     % 3 = fully incongruent (FIC), 5 = initially congruent (IC), 9 = fully congruent (FC)
@@ -42,8 +43,8 @@ poststim=0.2
     
     %% low pass filtering to remove  high frequncey noise 
     % Fitering options and demaan epochs
-    cfg.demean          = 'yes';
-    cfg.channel={'Cz', 'CPz', 'FCz', 'Pz', 'FC5', 'FC6', 'C5', 'C6', 'CP5', 'CP6', 'T7', 'T8'}
+   
+    
     data_all = ft_preprocessing(cfg);
 %%
    cfg = [];
@@ -65,10 +66,12 @@ poststim=0.2
     %% lets seprate the trails for  inphase and anti phase
      % inphase  trails 
     cfg = [];
+    cfg.channel={'Cz', 'CPz', 'FCz', 'Pz', 'FC5', 'FC6', 'C5', 'C6', 'CP5', 'CP6', 'T7', 'T8'}
     cfg.trials = find(data_all.trialinfo==1);
     EEG_in = ft_timelockanalysis(cfg, data_all); % calculate time locked erp
     % antiphase  trails
     cfg = [];
+    cfg.channel={'Cz', 'CPz', 'FCz', 'Pz', 'FC5', 'FC6', 'C5', 'C6', 'CP5', 'CP6', 'T7', 'T8'}
     cfg.trials = find(data_all.trialinfo==-1);
     EEG_anti = ft_timelockanalysis(cfg, data_all); % calculate time locked erp
     
@@ -103,12 +106,12 @@ legend({'AntiPhase', 'InPhase'});
     
     
     %% for ploting 
-%     cfg = [];
-%     load easycapM11.mat    % electrode placement layout   make sure the mat file is in same dir as code
-%     cfg.layout = lay;
-%     cfg.interactive = 'yes';
-%     cfg.showoutline = 'yes';
-%     ft_multiplotER(cfg, EEG_in, EEG_anti)
+    cfg = [];
+    load easycapM11.mat    % electrode placement layout   make sure the mat file is in same dir as code
+    cfg.layout = lay;
+    cfg.interactive = 'yes';
+    cfg.showoutline = 'yes';
+    ft_multiplotER(cfg, EEG_in, EEG_anti)
 %     
     
     

@@ -111,7 +111,7 @@ eeglab redraw;
 
 %% save as two separate datasets
 % Create output dir if it does not exist
-subject_dataset_dir = fullfile('C:\Users\eignatious\OneDrive - Charles Darwin University\Documents\MATLAB\Final_set_Exps\EEG_AEP_Analysis_Final\Epoched_data', subject_id, BMLD_TYPE, num2str(FREQ));
+subject_dataset_dir = fullfile('E:\data\epoched');
 if ~isdir(subject_dataset_dir)
     mkdir(subject_dataset_dir);
 end
