@@ -1,4 +1,4 @@
-function [EEG] = rejectbadepochs(EEG, eeg_channel_pos, max_amplitude, min_amplitude)
+function [EEG,rejected] = rejectbadepochs(EEG, eeg_channel_pos, max_amplitude, min_amplitude)
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -14,6 +14,8 @@ if sum(epoch_to_reject_ind) > 0
 %     EEG = pop_rejepoch(EEG, epoch_to_reject_ind);
     EEG = pop_rejepoch(EEG, epoch_to_reject_ind, 0);       % added 31-08-2021 to automatically reject epochs without asking for confirmation dialog
 end
+
+rejected=sum(epoch_to_reject_ind)
 
 end
 

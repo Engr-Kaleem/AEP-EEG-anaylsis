@@ -20,8 +20,8 @@ EPOCH_TIME_AFTER_STIM       = 0.100;    % Time in seconds to take after stim to 
 f_max   = 100;      % Max frequency for PSD visualisation
 nfft    = 4096;     % Number of points for the fft
 %freq_bands = {[0.5, 4], [4, 8], [8, 15], [16, 31], [32,50]};
-freq_bands = {[15, 20], [20, 25], [25, 30] [30, 35], [35, 40], [40, 45]};
-freq_bands_names = {'15-20', '20-25', '25-30', '30-35', '35-40', '40-45'};
+freq_bands = {[15, 20]}%, [20, 25], [25, 30] [30, 35], [35, 40], [40, 45]};
+freq_bands_names = {'15-20'}%, '20-25', '25-30', '30-35', '35-40', '40-45'};
 
 
 baseline_removal = 0;
@@ -110,6 +110,8 @@ for i=1:2:nfiles
         axis tight;
         plot([0, 0], ylim, 'k'); plot(xlim, [0, 0], 'k--');
         plot([STIM_DURATION_MS, STIM_DURATION_MS], ylim, 'Color', [0.1, 0.1, 0.1]);
+
+       
         xlabel('Time (ms)'); ylabel('Amplitude (uV)');
         %title(['ERPs - ', 'Subect 2', ' - channel : ', channel_name, ' - baseline removed : ', num2str(baseline_removal)]);
         title(['ERPs - Subject ', subject_id, ' - channel : ', channel_name, ' - baseline removed : ', num2str(baseline_removal)]);
@@ -139,84 +141,84 @@ for i=1:2:nfiles
 % [nan nan nan 35 -1.5 1.5],'signifs', allerspboot, 'sigthresh', [6], 'timefreqs', ...
 % [400 8; 350 14; 500 24; 1050 11], 'chanlocs', EEG.chanlocs);
 
-  %% Mean frequency spectum
+  % Mean frequency spectum
 % Compute the power spectral density for each trial and compute the mean 
 % The PSD is estimated using fft 
-%     k=1;
-%     var{1}='channel_no';
-%     k=k+1;
-%     for i=1:4
-%         var{k}=strcat('Peak_',num2str(i),'A1_out_mV');
-%         var{k+1}=strcat('Peak_',num2str(i),'F1_out_Hz');
-%         var{k+2}=strcat('Peak_',num2str(i),'PH_out_degrees');
-%         
-%         var{k+3}=strcat('Peak_',num2str(i),'A1_in_mV');
-%         var{k+4}=strcat('Peak_',num2str(i),'F1_in_Hz');
-%         var{k+5}=strcat('Peak_',num2str(i),'PH_in_degrees');
-%         k=k+6;
-%     end  
-%     
-%     peaks=4;
-%     for chan_num = eeg_channel_pos
-%         % Compute mean Power Spectral Density
-%         [FFT_anti,pxx_db_mean_anti, f_vect]  = freqanalysis_computemeanpsd(EEG_anti, chan_num, nfft, t_min, t_max);
-%         [FFT_in,pxx_db_mean_in, f_vect]    = freqanalysis_computemeanpsd(EEG_in, chan_num, nfft, t_min, t_max);
-%         
-%         % Compute mean power per frequency band
-%         freq_band_power_anti        = freqanalysis_computebandenergy(pxx_db_mean_anti, f_vect, freq_bands);
-%         freq_band_power_in          = freqanalysis_computebandenergy(pxx_db_mean_in, f_vect, freq_bands);
-%         i=chan_num;
-%         freq_band_diff=freq_band_power_anti-freq_band_power_in;
-%         freq_band_power_anti_all(:, i) = freq_band_power_anti;
-%         freq_band_power_in_all(:, i) = freq_band_power_in;
-%         freq_band_diff_all(:, i)=freq_band_diff;
-%         i = i+1;
-%            
-%         % Plot the mean PSD
-%         channel_name = EEG_in.chanlocs(chan_num).labels;
-%         figure; hold on;
-%         plot(f_vect, pxx_db_mean_anti, 'color', ANTIPHASE_COLOR);
-%         plot(f_vect, pxx_db_mean_in, 'color', INPHASE_COLOR);
-%         axis tight; xlim([f_min, f_max]);
-%         % Plot frequency band limits
-%     %     ylims = ylim();
-%     %     for freq_band_i = unique(freq_bands);
-%     %         line([freq_band_i, freq_band_i], ylims, 'color', [0.5, 0.5, 0.5], 'linestyle', ':');
-%     %     end
-%         xlabel('Frequency (Hz)'); ylabel('Gain (dB)');
-%         title(['Power Spectral Density - Subject ', subject_id,' - channel : ', channel_name, ' - baseline removed : ', num2str(baseline_removal)]);
-%         legend({'AntiPhase', 'InPhase'});
-%         
-%         % Plot mean power per frequency band
-%         figure; hold on;
-%         ax(1) = subplot(3,1,1:2);
-%         x = 1:length(freq_bands);
-%         h = bar(x, [freq_band_power_anti, freq_band_power_in]);    
-%         h(1).FaceColor = 'r';
-%         h(2).FaceColor = 'g';
-%     %     xlabel('Frequency (Hz)');
-%         ylabel('Gain (dB)');
-%         ylim([min(min([freq_band_power_anti, freq_band_power_in])) - 2, max(max([freq_band_power_anti, freq_band_power_in])) + 2]);
-%         set(gca, 'xtick', x); set(gca, 'xticklabel', freq_bands_names);
-%         title(['Energy per frequency band - Subject ', subject_id,' - channel : ', channel_name, ' - baseline removed : ', num2str(baseline_removal)]);
-%         legend({'AntiPhase', 'InPhase'});
-%         ax(2) = subplot(313);
-%         bar(x, [freq_band_power_anti - freq_band_power_in], 0.5);
-%         set(gca, 'xtick', x); set(gca, 'xticklabel', freq_bands_names);
-%         xlabel('Frequency (Hz)'); ylabel('dB');
-%         title(['Energy per frequency band - AntiPhase - InPhase - Subject ', subject_id,' - channel : ', channel_name, ' - baseline removed : ', num2str(baseline_removal)]);
-%     end
-% 
-%    
-%      fn = 'E:\data\results\';  %in this example, we'll save to a temp directory.
-%  
-%      figHandles = findall(0,'Type','figure'); 
-% 
-%  
-%      for ind = 1:numel(figHandles)
-%         exportgraphics(figHandles(ind), [fn,subject_id,'_',stimdur,'_',FREQ,'hz_freqAna.pdf'], 'Append', true);
-%      end
-%      close all;
+    k=1;
+    var{1}='channel_no';
+    k=k+1;
+    for i=1:4
+        var{k}=strcat('Peak_',num2str(i),'A1_out_mV');
+        var{k+1}=strcat('Peak_',num2str(i),'F1_out_Hz');
+        var{k+2}=strcat('Peak_',num2str(i),'PH_out_degrees');
+        
+        var{k+3}=strcat('Peak_',num2str(i),'A1_in_mV');
+        var{k+4}=strcat('Peak_',num2str(i),'F1_in_Hz');
+        var{k+5}=strcat('Peak_',num2str(i),'PH_in_degrees');
+        k=k+6;
+    end  
+    
+    peaks=4;
+    for chan_num = eeg_channel_pos
+        % Compute mean Power Spectral Density
+        [FFT_anti,pxx_db_mean_anti, f_vect]  = freqanalysis_computemeanpsd(EEG_anti, chan_num, nfft, t_min, t_max);
+        [FFT_in,pxx_db_mean_in, f_vect]    = freqanalysis_computemeanpsd(EEG_in, chan_num, nfft, t_min, t_max);
+        
+        % Compute mean power per frequency band
+        freq_band_power_anti        = freqanalysis_computebandenergy(pxx_db_mean_anti, f_vect, freq_bands);
+        freq_band_power_in          = freqanalysis_computebandenergy(pxx_db_mean_in, f_vect, freq_bands);
+        i=chan_num;
+        freq_band_diff=freq_band_power_anti-freq_band_power_in;
+        freq_band_power_anti_all(:, i) = freq_band_power_anti;
+        freq_band_power_in_all(:, i) = freq_band_power_in;
+        freq_band_diff_all(:, i)=freq_band_diff;
+        i = i+1;
+           
+        % Plot the mean PSD
+        channel_name = EEG_in.chanlocs(chan_num).labels;
+        figure; hold on;
+        plot(f_vect, pxx_db_mean_anti, 'color', ANTIPHASE_COLOR);
+        plot(f_vect, pxx_db_mean_in, 'color', INPHASE_COLOR);
+        axis tight; xlim([f_min, f_max]);
+        % Plot frequency band limits
+    %     ylims = ylim();
+    %     for freq_band_i = unique(freq_bands);
+    %         line([freq_band_i, freq_band_i], ylims, 'color', [0.5, 0.5, 0.5], 'linestyle', ':');
+    %     end
+        xlabel('Frequency (Hz)'); ylabel('Gain (dB)');
+        title(['Power Spectral Density - Subject ', subject_id,' - channel : ', channel_name, ' - baseline removed : ', num2str(baseline_removal)]);
+        legend({'AntiPhase', 'InPhase'});
+        
+        % Plot mean power per frequency band
+        figure; hold on;
+        ax(1) = subplot(3,1,1:2);
+        x = 1:length(freq_bands);
+        h = bar(x, [freq_band_power_anti, freq_band_power_in]);    
+        h(1).FaceColor = 'r';
+        h(2).FaceColor = 'g';
+    %     xlabel('Frequency (Hz)');
+        ylabel('Gain (dB)');
+        ylim([min(min([freq_band_power_anti, freq_band_power_in])) - 2, max(max([freq_band_power_anti, freq_band_power_in])) + 2]);
+        set(gca, 'xtick', x); set(gca, 'xticklabel', freq_bands_names);
+        title(['Energy per frequency band - Subject ', subject_id,' - channel : ', channel_name, ' - baseline removed : ', num2str(baseline_removal)]);
+        legend({'AntiPhase', 'InPhase'});
+        ax(2) = subplot(313);
+        bar(x, [freq_band_power_anti - freq_band_power_in], 0.5);
+        set(gca, 'xtick', x); set(gca, 'xticklabel', freq_bands_names);
+        xlabel('Frequency (Hz)'); ylabel('dB');
+        title(['Energy per frequency band - AntiPhase - InPhase - Subject ', subject_id,' - channel : ', channel_name, ' - baseline removed : ', num2str(baseline_removal)]);
+    end
+
+   
+     fn = 'E:\data\results\';  %in this example, we'll save to a temp directory.
+ 
+     figHandles = findall(0,'Type','figure'); 
+
+ 
+     for ind = 1:numel(figHandles)
+        exportgraphics(figHandles(ind), [fn,subject_id,'_',stimdur,'_',FREQ,'hz_freqAna.pdf'], 'Append', true);
+     end
+     close all;
      
      
      
@@ -264,7 +266,8 @@ for i=1:2:nfiles
     %title_str = ['ERP mean energy between ', num2str(t_area_min),'s and ', num2str(t_area_max),'s - Subject ', '2', ' - baseline removed : ', num2str(baseline_removal)];
     title_str = ['ERP mean energy between ', num2str(t_area_min),'s and ', num2str(t_area_max),'s - Subject ', subject_id, ' - baseline removed : ', num2str(baseline_removal)];
     title(title_str);
-    saveas(gcf,[fn,subject_id,'_',stimdur,'_',FREQ,'hz.png'])
+    saveas(gcf,[fn,subject_id,'_',stimdur,'_',FREQ,'hz_ERPbars.png'])
+    
     close all;
     sub=sub+1;
 end

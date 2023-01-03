@@ -107,7 +107,7 @@ for i=1:nfiles
     EEG = pop_eegfiltnew(EEG, 'locutoff', highpass_lowcutoff, 'channels',[1:12] );
     
     % notch filter
-    EEG = pop_eegfiltnew(EEG, 'locutoff', 45, 'hicutoff', 55, 'channels',[1:12], 'revfilt',1);
+    %EEG = pop_eegfiltnew(EEG, 'locutoff', 45, 'hicutoff', 55, 'channels',[1:12], 'revfilt',1);
     
     [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'setname','filtered_data','gui','off');
     eeglab redraw;
