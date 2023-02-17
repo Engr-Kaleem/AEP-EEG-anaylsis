@@ -10,7 +10,7 @@ subject_id = 'Sub_1';       % used to make a folder inside data folder
 FREQ = 1000;                 % used to make a folder inside data folder
 BMLD_TYPE = 'LLR';          % used to make a folder inside data folder
 
-filedir='E:\data\Epoched_data'
+filedir= 'E:\data\epoched';
 matfiles = dir(fullfile(filedir, '*.set'));
 nfiles = length(matfiles);
 

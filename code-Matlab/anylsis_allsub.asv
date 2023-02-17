@@ -241,6 +241,6 @@ writematrix(total_rejected,[fn,'epoch_rejection_report.xls'])
 for i=eeg_channel_pos
  data=freq_engy_mat(i).data(:,:)
  writematrix(data,[fn,'freq_energy.xls'],'Sheet',i)
- xlswrite([fn,'freq_energy.xls'],data,i)
+ xlswrite(filename,A,sheet
 end
 xlswrite([fn,'erp_AUC.xls'],erp_AOC_mat)
