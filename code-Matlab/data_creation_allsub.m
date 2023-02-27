@@ -19,7 +19,7 @@ nfiles = length(matfiles);
  
 %% start eeglab
 eeglab;
-ADJUST_TRIGGERS = 250;       % in ms. values to add in ms to adjust triggers. as triggers were given when trial started. Trial design is |^noise|#tone+noise|noise|. trigger is given at ^, so we need to move trigger at point # as that's where the tone was played.
+ADJUST_TRIGGERS = 0;       % in ms. values to add in ms to adjust triggers. as triggers were given when trial started. Trial design is |^noise|#tone+noise|noise|. trigger is given at ^, so we need to move trigger at point # as that's where the tone was played.
 srate = 19200;
 
 new_srate = 2048;       % downsampled rate
@@ -38,6 +38,8 @@ for i=1:nfiles
     stim = y(3, :);
     
     eeg_data = y([6:17, 4], :);
+%     eeg_data = y([6:17, 4,3,5,4], :);
+    
     
     
     %% import in EEGLAB
@@ -49,6 +51,7 @@ for i=1:nfiles
     
     %% add channel info
     channels_out = {'Cz', 'CPz', 'FCz', 'Pz', 'FC5', 'FC6', 'C5', 'C6', 'CP5', 'CP6', 'T7', 'T8', 'Trigger'};
+%       channels_out = {'Cz', 'CPz', 'FCz', 'Pz', 'FC5', 'FC6', 'C5', 'C6', 'CP5', 'CP6', 'T7', 'T8', 'Trigger','stim_L','stim_R','Tr'};
     channel_loc = struct('labels', channels_out);
     EEG.chanlocs = eeg_checkchanlocs(channel_loc);
     
@@ -122,7 +125,7 @@ for i=1:nfiles
     
     %% save as two separate datasets
     % Create output dir if it does not exist
-    subject_dataset_dir = fullfile('E:\data\epoched');
+    subject_dataset_dir = fullfile('E:\data\epoched\');
     if ~isdir(subject_dataset_dir)
         mkdir(subject_dataset_dir);
     end
