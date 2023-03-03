@@ -1,0 +1,107 @@
+import numpy as  np
+import seaborn as sb
+import pandas as pd 
+import matplotlib.pyplot as plt
+import scipy.stats as stats
+from scipy.stats import binom_test
+from statsmodels.stats.contingency_tables import mcnemar
+
+filename = 'E:/Github/AEP-anaylsis/code-Python/audiogramdataonesheet_2.xlsx'
+
+
+test_names = [ 'Mann-Whitney U test',
+              ' Wilcoxon signed-rank test',
+              ' Kruskal-Wallis test',
+              'Unpaired t test',
+              'signed test',
+              'Kolmogorov-Smirnov test']
+
+# Create an empty dataframe to store p-values
+result_df = pd.DataFrame(columns=['test_name', 'duration', 'freqs','pvalue'])
+
+
+
+
+df = pd.read_excel(filename)
+
+freqs=['125Hz',	'250Hz','500Hz'	,'750Hz','1000Hz']
+dur= ['MLR','LLR','ABR']
+
+for f in freqs:
+    for d in dur:
+        print('************************************************')
+        print(f'freq={f} and duration={d}')
+        print('****************************************')
+        df_MLR_inphase =  df.loc[(df['Type'] == d) & (df['stim'] == 'SoNo')]
+        inphase = df_MLR_inphase[f].values
+        df_MLR_antiphase =  df.loc[(df['Type'] == d) & (df['stim'] == 'SpiNo')]
+        antiphase = df_MLR_antiphase[f].values
+        # Check normality assumption
+        # fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+        # axes[0].hist(inphase)
+        # axes[0].set_title("Inphase")
+        # axes[1].hist(antiphase)
+        # axes[1].set_title("Antiphase")
+        # plt.show()
+
+        _, inphase_pval = stats.shapiro(inphase)
+        _, antiphase_pval = stats.shapiro(antiphase)
+
+        print("Normality tests:")
+        print(f"Inphase Shapiro-Wilk p-value: {inphase_pval:.3f}")
+        print(f"Antiphase Shapiro-Wilk p-value: {antiphase_pval:.3f}")
+
+        # Check equal variance assumption
+        _, var_pval = stats.levene(inphase, antiphase)
+
+        print("Equal variance test:")
+        print(f"Levene's test p-value: {var_pval:.3f}")
+        stat, pval = stats.mannwhitneyu(inphase, antiphase, alternative='two-sided')
+
+        print(f"Mann-Whitney U test statistic: {stat:.3f}")
+        print(f"Mann-Whitney U test p-value: {pval:.3f}")
+        stat, pval = stats.wilcoxon(inphase, antiphase)
+
+        print(f"Wilcoxon signed-rank test statistic: {stat:.3f}")
+        print(f"Wilcoxon signed-rank test p-value: {pval:.3f}")
+        stat, pval = stats.kruskal(inphase, antiphase)
+
+        print(f"Kruskal-Wallis test statistic: {stat:.3f}")
+        print(f"Kruskal-Wallis test p-value: {pval:.3f}")
+        diff = inphase - antiphase
+        n_pos = sum(diff > 0)
+        n_neg = sum(diff < 0)
+        n_zero = sum(diff == 0)
+        print("Sign test:")
+        print(f"n_pos: {n_pos}, n_neg: {n_neg}, n_zero: {n_zero}")
+        sin_pval = binom_test(n_pos, n=n_pos + n_neg + n_zero, alternative='two-sided')
+        print(f"p-value: {sin_pval:.3f}")
+
+        # # McNemar's test for paired nominal data
+        # c1 = sum(inphase < antiphase)
+        # c2 = sum(inphase > antiphase)
+        # table = [[c1, n_pos - c1], [n_neg - c2, c2]]
+        # print("McNemar's test:")
+        # print(table)
+        # stat, MC_pval = mcnemar(table, exact=True)
+        # print(f"McNemar's test statistic: {stat:.3f}")
+        # print(f"McNemar's test p-value: {MC_pval:.3f}")
+  
+
+        _, inphase_pval = stats.shapiro(inphase)
+        _, antiphase_pval = stats.shapiro(antiphase)
+        _, var_pval = stats.levene(inphase, antiphase)
+        mw_stat, mw_pval = stats.mannwhitneyu(inphase, antiphase, alternative='two-sided')
+        wc_stat, wc_pval = stats.wilcoxon(inphase, antiphase)
+        kw_stat, kw_pval = stats.kruskal(inphase, antiphase)
+        t_stat, t_pval = stats.ttest_ind(inphase, antiphase)
+        k_stat, k_pval = stats.ks_2samp(inphase, antiphase)
+
+        results = [mw_pval, wc_pval, kw_pval,t_pval,sin_pval,k_pval]
+
+        row = pd.DataFrame({'test_name': test_names, 'duration': d,'freqs':f, 'pvalue':results})
+        result_df = pd.concat([result_df, row], axis=0, ignore_index=True)
+print(result_df)
+result_df.to_excel("p_values.xlsx", index=False)
+                
+        
