@@ -17,7 +17,7 @@ test_names = [ 'Mann-Whitney U test',
               'Kolmogorov-Smirnov test']
 
 # Create an empty dataframe to store p-values
-result_df = pd.DataFrame(columns=['test_name', 'duration', 'freqs','pvalue'])
+result_df = pd.DataFrame(columns=['test_name', 'duration_ms', 'freqs','pvalue','significance','stats'])
 
 
 
@@ -26,6 +26,8 @@ df = pd.read_excel(filename)
 
 freqs=['125Hz',	'250Hz','500Hz'	,'750Hz','1000Hz']
 dur= ['MLR','LLR','ABR']
+
+dur_ms={'ABR':3,'MLR':18,'LLR':48}
 
 for f in freqs:
     for d in dur:
@@ -43,6 +45,7 @@ for f in freqs:
         # axes[1].hist(antiphase)
         # axes[1].set_title("Antiphase")
         # plt.show()
+        ptest=0.05
 
         _, inphase_pval = stats.shapiro(inphase)
         _, antiphase_pval = stats.shapiro(antiphase)
@@ -76,6 +79,10 @@ for f in freqs:
         print(f"n_pos: {n_pos}, n_neg: {n_neg}, n_zero: {n_zero}")
         sin_pval = binom_test(n_pos, n=n_pos + n_neg + n_zero, alternative='two-sided')
         print(f"p-value: {sin_pval:.3f}")
+        if(sin_pval<=ptest):
+            sin_ss=1
+        else:
+            sin_ss=0
 
         # # McNemar's test for paired nominal data
         # c1 = sum(inphase < antiphase)
@@ -86,20 +93,48 @@ for f in freqs:
         # stat, MC_pval = mcnemar(table, exact=True)
         # print(f"McNemar's test statistic: {stat:.3f}")
         # print(f"McNemar's test p-value: {MC_pval:.3f}")
-  
+      
 
         _, inphase_pval = stats.shapiro(inphase)
         _, antiphase_pval = stats.shapiro(antiphase)
         _, var_pval = stats.levene(inphase, antiphase)
         mw_stat, mw_pval = stats.mannwhitneyu(inphase, antiphase, alternative='two-sided')
+        if(mw_pval<=ptest):
+            mw_ss=1
+        else:
+            mw_ss=0
+            
         wc_stat, wc_pval = stats.wilcoxon(inphase, antiphase)
+        if(wc_pval<=ptest):
+            wc_ss=1
+        else:
+            ww_ss=0
+            
         kw_stat, kw_pval = stats.kruskal(inphase, antiphase)
+        if(kw_pval<=ptest):
+            kw_ss=1
+        else:
+            kw_ss=0
         t_stat, t_pval = stats.ttest_ind(inphase, antiphase)
+        if(t_pval<=ptest):
+            t_ss=1
+        else:
+            t_ss=0
+        
+        
+        
         k_stat, k_pval = stats.ks_2samp(inphase, antiphase)
+        if(k_pval<=ptest):
+            k_ss=1
+        else:
+            k_ss=0
 
         results = [mw_pval, wc_pval, kw_pval,t_pval,sin_pval,k_pval]
+        sig=[mw_ss,wc_ss,kw_ss,t_ss,sin_ss,k_ss]
+        st=[mw_stat,wc_stat,kw_stat,t_stat,'NA',k_stat]
 
-        row = pd.DataFrame({'test_name': test_names, 'duration': d,'freqs':f, 'pvalue':results})
+        row = pd.DataFrame({'test_name': test_names, 'duration_ms': dur_ms[d],'freqs':f, 'pvalue':results,'significance':sig,'stats':st})
+      
         result_df = pd.concat([result_df, row], axis=0, ignore_index=True)
 print(result_df)
 result_df.to_excel("p_values.xlsx", index=False)
