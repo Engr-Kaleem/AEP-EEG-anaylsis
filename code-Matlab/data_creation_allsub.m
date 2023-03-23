@@ -28,9 +28,16 @@ highpass_lowcutoff = 1;   % lower edge of the frequency pass band (Hz)
 
 
 for i=1:nfiles
-    subject_id = matfiles(i).name(1:5);       % used to make a folder inside data folder
-    FREQ = matfiles(i).name(11:13);                 % used to make a folder inside data folder
-    stimdur = matfiles(i).name(7:9);          % used to make a folder inside data folder
+
+    parts = split(matfiles(i).name, '_');
+
+    % Extract the individual parts and assign them to variables
+    subject = parts{1}; % "Sub"
+    session = parts{2}; % 1
+    stimdur = parts{3}; % "LLR"
+    FREQ = parts{4}(1:end-4); % 500
+    subject_id=[subject '_'  session]
+
     filename=[filedir,'\',matfiles(i).name]
     
     load(filename) 
