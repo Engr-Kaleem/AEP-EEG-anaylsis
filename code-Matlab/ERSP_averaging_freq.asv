@@ -23,7 +23,7 @@ eeg_channel_pos  = 1:12;
 
 
  
-for i=1:nfiles
+for i=1:2:nfiles
     parts = split(matfiles(i).name, '_');
 
     % Extract the individual parts and assign them to variables
@@ -98,8 +98,8 @@ end
     % Apply rejections only to eeg channels : channels
     if epoch_rejection
        % [EEG ,rejected_tr]     = rejectbadepochs(EEG, chan_inds, epoch_reject_max_amplitude, epoch_reject_min_amplitude);
-        [EEG ,rejected_tr]     = rejectbadepochs(EEG, eeg_channel_pos, epoch_reject_max_amplitude, epoch_reject_min_amplitude);
-        [EEG ,rejected_tr]     = rejectbadepochs(EEG, eeg_channel_pos, epoch_reject_max_amplitude, epoch_reject_min_amplitude);
+        [EEG_in ,rejected_tr_in]     = rejectbadepochs(EEG_in, eeg_channel_pos, epoch_reject_max_amplitude, epoch_reject_min_amplitude);
+        [EEG_anti ,rejected_tr_anti]     = rejectbadepochs(EEG_anti, eeg_channel_pos, epoch_reject_max_amplitude, epoch_reject_min_amplitude);
     end
     
  %%   
@@ -108,26 +108,33 @@ end
             
         params.tlimits = [-100 300]; % time limits in ms
         params.cycles = [1 0.5]; % number of cycles in each frequency bin
-        params.freqs = [5 50]; % frequency range in Hz
+        params.freqs = [5 200]; % frequency range in Hz
     else
         params.tlimits = [-100 100]; % time limits in ms
         params.cycles = [1 0.5]; % number of cycles in each frequency bin
-        params.freqs = [5 300]; % frequency range in Hz
+        params.freqs = [5 200]; % frequency range in Hz
     end 
 
 %%
 %     figure;
 %     title(cell2mat([subject_id ' ' stimdur ' ' FREQ ' ' event_names ' ' 'ERPS']))
-     ersp_in= newtimef(EEG_in.data(1,:,:), EEG_in.pnts, params.tlimits, EEG_in.srate, params.cycles,'freqs', params.freqs,'plotersp','off');
-     ersp_anti= newtimef(EEG_anti.data(1,:,:), EEG_anti.pnts, params.tlimits, EEG_anti.srate, params.cycles,'freqs', params.freqs,'plotersp','off');
+     [ersp_in,itc_in,powbase,times_in,freqs_in]= newtimef(EEG_in.data(1,:,:), EEG_in.pnts, params.tlimits, EEG_in.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
+     [ersp_anti,itc_anti,powbase,times_anti,freqs_anti]= newtimef(EEG_anti.data(1,:,:), EEG_anti.pnts, params.tlimits, EEG_anti.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
  
- %  exportgraphics(gcf,'ersp.pdf', 'Append', true);
-%    close all;
-    
+     ersp_diff=ersp_in-ersp_anti   ;
 
+   
+    figure;
+    clim=[-2 2];
+    imagesc(times_in, freqs_in, ersp_diff,clim);
+    axis xy;
+    colorbar;
+    title('ERSP Difference between Subject 1 and Subject 2');
+    xlabel('Time (s)');
+    ylabel('Frequency (Hz)');
 
-
-
+     %  exportgraphics(gcf,'ersp.pdf', 'Append', true);
+     %    close all;
 
 
 end

@@ -110,7 +110,7 @@ end
     [ersp,itc,powbase,times,freqs] = newtimef(EEG.data(1,:,:), EEG.pnts, params.tlimits, EEG.srate, params.cycles,'freqs', params.freqs);
  
  %  exportgraphics(gcf,'ersp.pdf', 'Append', true);
-%    close all;
+ %    close all;
     
 
 

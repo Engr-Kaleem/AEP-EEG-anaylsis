@@ -21,9 +21,9 @@ epoch_reject_max_amplitude = 150;  % If epoch amplitude is higher than that, epo
 epoch_reject_min_amplitude = -150; % If epoch amplitude is lower than that, epoch is rejected
 eeg_channel_pos  = 1:12;
 
-
+sub=1;
  
-for i=1:nfiles
+for i=1:2:nfiles
     parts = split(matfiles(i).name, '_');
 
     % Extract the individual parts and assign them to variables
@@ -118,15 +118,46 @@ end
 %%
 %     figure;
 %     title(cell2mat([subject_id ' ' stimdur ' ' FREQ ' ' event_names ' ' 'ERPS']))
-     ersp_in= newtimef(EEG_in.data(1,:,:), EEG_in.pnts, params.tlimits, EEG_in.srate, params.cycles,'freqs', params.freqs,'plotersp','off');
-     ersp_anti= newtimef(EEG_anti.data(1,:,:), EEG_anti.pnts, params.tlimits, EEG_anti.srate, params.cycles,'freqs', params.freqs,'plotersp','off');
+     [ersp_in,itc_in,powbase,times_in,freqs_in]= newtimef(EEG_in.data(1,:,:), EEG_in.pnts, params.tlimits, EEG_in.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
+     [ersp_anti,itc_anti,powbase,times_anti,freqs_anti]= newtimef(EEG_anti.data(1,:,:), EEG_anti.pnts, params.tlimits, EEG_anti.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
  
-     ersp_diff=ersp_anti-ersp_in   
+     ersp_diff(:,:,sub)=ersp_anti-ersp_in   ;
+     itc_diff(:,:,sub)=abs(itc_anti-itc_in);
+
+   
+    figure;
+    
+%     surf(times_in, freqs_in, ersp_diff);
+%     hold on;
+    imagesc(times_in, freqs_in,  ersp_diff(:,:,sub));
+    axis xy;
+    colorbar;
+    title('ERSP Difference between inphase and antiphase of ',subject_id);
+    xlabel('Time (s)');
+    ylabel('Frequency (Hz)');
+   sub=sub+1;
+     %  exportgraphics(gcf,'ersp.pdf', 'Append', true);
+     %    close all;
 
 
-
-
-
-
-end
+end 
+%%
+figure;
+   
+%     surf(times_in, freqs_in, ersp_diff);
+%     hold on;
+    clim=[-1 1];
+    imagesc(times_in, freqs_in, mean(ersp_diff,3));
+    axis xy;
+    colorbar;
+    title([stimduration,' ',frequncey ,' ', 'ERPS Average'])
+    xlabel('Time (s)');
+    ylabel('Frequency (Hz)');
+    figure
+    imagesc(times_in, freqs_in, mean(itc_diff,3));
+    axis xy;
+    colorbar;
+    title([stimduration ,' ',frequncey ,' ','ITC average ']);
+    xlabel('Time (s)');
+    ylabel('Frequency (Hz)');
 
