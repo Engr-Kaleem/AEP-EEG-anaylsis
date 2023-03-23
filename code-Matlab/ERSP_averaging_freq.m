@@ -161,3 +161,11 @@ figure;
     xlabel('Time (s)');
     ylabel('Frequency (Hz)');
 
+
+%% cooment this code if ruuning on matlab 2017
+
+    fn = 'E:\data\results\'
+    figHandles = findall(0,'Type','figure'); 
+    for ind = 1:numel(figHandles)
+        exportgraphics(figHandles(ind), [fn,stimduration,'_',frequncey,'_','ERSP_results.pdf'], 'Append', true);
+    end
