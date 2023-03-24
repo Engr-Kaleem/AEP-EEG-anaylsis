@@ -7,7 +7,7 @@ frequncey='500'
 stimduration='LLR'
 str=['*LLR','*500hz','*.set']
 
-only_selected_channels=1;
+
 
 
 filedir='E:\data\epoched';
@@ -49,6 +49,12 @@ for i=1:2:nfiles
     event_in = unique({EEG_in.event.type});
     event_anti = unique({EEG_anti.event.type});
     
+%%                Print channel names
+            fprintf('Channel Names:\n');
+            for i = 1:length({EEG_in.chanlocs.labels})
+                fprintf('%s\n', EEG_in.chanlocs(i).labels);
+                fprintf('%s\n', EEG_anti.chanlocs(i).labels);
+            end
  %% 
 
 %     Print the event type names
@@ -57,7 +63,6 @@ for i=1:2:nfiles
 %         fprintf('%s\n', event_names{i});
 %     end
   %%    Select channels of interest by name
-  if only_selected_channels
     channels = {'FC5', 'FC6', 'C5', 'C6','CP5', 'CP6'};
     chan_inds = [];
     for i = 1:length(channels)
@@ -68,15 +73,7 @@ for i=1:2:nfiles
     end
     EEG_anti = pop_select(EEG_anti, 'channel', chan_inds);
     EEG_in = pop_select(EEG_in, 'channel', chan_inds);
-   eeg_channel_pos=1:length(chan_inds)
-  end
-  %%                Print channel names
-            fprintf('Channel Names:\n');
-            for i = 1:length({EEG_in.chanlocs.labels})
-                fprintf('%s\n', EEG_in.chanlocs(i).labels);
-                fprintf('%s\n', EEG_anti.chanlocs(i).labels);
-            end
-
+   chan
 %%
 
      
