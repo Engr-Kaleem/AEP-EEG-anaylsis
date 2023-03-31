@@ -7,7 +7,7 @@ import pandas as pd
 filename = 'E:/Github/AEP-anaylsis/code-Python/audiogramdataonesheet_2.xlsx'
 df = pd.read_excel(filename)
 
-df_MLR_org =  df.loc[(df['Type'] == 'ABR') & (df['stim'] == 'BMLD')]
+df_MLR_org =  df.loc[(df['Type'] == 'LLR') & (df['stim'] == 'BMLD')]
 # df_LLR =  df.loc[(df['Type'] == 'LLR') & (df['stim'] == 'BMLD')]
 # df_ABR =  df.loc[(df['Type'] == 'ABR') & (df['stim'] == 'BMLD')]
 df_MLR = df_MLR_org.drop(columns=['Subjects','Type', 'stim'])
@@ -38,13 +38,14 @@ cd = np.sqrt(k*(k+1)/(6*n)*chi2.ppf(1-alpha, k))
 print(cd)
 
 # Plot the Nemenyi plot
-plt.errorbar(x=mean_ranks, y=np.arange(k), xerr=cd, fmt="o")
-plt.yticks(np.arange(k), data.columns)
-plt.xlabel("Mean rank")
-plt.ylabel("frequencies")
-plt.title("Nemenyi plot signal duration 3ms ")
+# Plot the Nemenyi plot
+plt.errorbar(x=np.arange(k), y=mean_ranks, yerr=cd, fmt="o")
+plt.xticks(np.arange(k), data.columns)
+plt.ylabel("Mean rank")
+plt.xlabel("Frequency")
+plt.title("Nemenyi plot signal duration 48ms and CD = 1.25")
 plt.show()
-
+print(mean_ranks)
 
 
 

@@ -1,0 +1,38 @@
+
+
+
+“The differences between SoNo and SpiNo conditions were statistically significant except for the duration was 3 ms seconds 
+combined with a frequency of 1000Hz.” This does not seem to agree with Fig 5
+Ans  wilcoxon signed rank test is based on mean rank and and not mean on the other hand the figure 5 shows 
+the mean of inphase and antiphase threasholds,I think  is the cause of differnce between reslut differnce between figure 5 and 
+and wilcoxon test
+
+
+Fig 9(3ms): I think the x and y axes should be switched.(orientation fixed ) cd=1.25  the round dot on the line  represent the mean rank.  for 500hz its 3.37 highest when compae tp 1.25 CD
+Fig 10(18): I think the x and y axes should be switched.(orientation fixed ) cd=1.25  the round dot on the line  represent the mean rank.  for 750hz its 3.46 highest when compae to 1.25 CD
+Fig 11(48): I think the x and y axes should be switched.(orientation fixed )cd=1.25  the round dot on the line  represent the mean rank.  for 750hz its 3.4 highest when compae to 1.25 CD
+
+
+
+
+
+“the critical difference value (CD = 1.258 for the 18 and 48 ms data)” How is the CD value determined? What is it for 3 ms?
+CD = np.sqrt(k*(k+1)/(6*n)*chi2.ppf(1-alpha, k)) wher k=5 (frequencies)n=35 (subjects)   alpha=0.05(95%confidence)
+hence CD is same 1.25 foe 3 ms  18ms and 48 ms.
+
+
+
+It is also not completely clear to mean what the results in these plots mean. Please explain
+“By utilizing the mean rank differences, the groups can be ranked, based on their performance” What does “performance” mean in this context?
+The critical difference (CD), according to the Nemenyi test, is a value used to determine 
+if the mean-ranking differences between two frequnceies are significant.
+ Mean-ranking differences above this value(CD) are significant .
+From parirwise mean rank differnces in figure   6(3 ms) ,7(18ms) and 8(48ms)we can see  for 3ms  most of mean rank differce si lessthen CD values and friedmen significance  test also failed for 3ms .
+on the other hand for from figure 7(18ms) and 8(48ms) most of parirwise mean rank differne are greter then CD and there corresponding friedmen test passed higgest F score for 48ms.
+
+
+
+
+
+
+

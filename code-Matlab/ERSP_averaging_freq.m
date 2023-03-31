@@ -122,8 +122,8 @@ end
 %%
 %     figure;
 %     title(cell2mat([subject_id ' ' stimdur ' ' FREQ ' ' event_names ' ' 'ERPS']))
-     [ersp_in,itc_in,powbase,times_in,freqs_in]= newtimef(EEG_in.data(1,:,:), EEG_in.pnts, params.tlimits, EEG_in.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
-     [ersp_anti,itc_anti,powbase,times_anti,freqs_anti]= newtimef(EEG_anti.data(1,:,:), EEG_anti.pnts, params.tlimits, EEG_anti.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
+     [ersp_in,itc_in,powbase,times_in,freqs_in]= newtimef(EEG_in.data(1:3,:,:), EEG_in.pnts, params.tlimits, EEG_in.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
+     [ersp_anti,itc_anti,powbase,times_anti,freqs_anti]= newtimef(EEG_anti.data(1:3,:,:), EEG_anti.pnts, params.tlimits, EEG_anti.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
  
      ersp_diff(:,:,sub)=ersp_anti-ersp_in   ;
      itc_diff(:,:,sub)=abs(itc_anti-itc_in);
@@ -140,8 +140,7 @@ end
     xlabel('Time (s)');
     ylabel('Frequency (Hz)');
    sub=sub+1;
-     %  exportgraphics(gcf,'ersp.pdf', 'Append', true);
-     %    close all;
+     
 
 
 end 

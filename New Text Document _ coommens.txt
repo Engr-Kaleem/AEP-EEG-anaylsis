@@ -1,0 +1,12 @@
+
+
+
+“The differences between SoNo and SpiNo conditions were statistically significant except for the duration was 3 ms seconds combined with a frequency of 1000Hz.” This does not seem to agree with Fig 5
+Fig 9: I think the x and y axes should be switched.
+Fig 10: I think the x and y axes should be switched.
+Fig 11: I think the x and y axes should be switched.
+It is also not completely clear to mean what the results in these plots mean. Please explain
+“By utilizing the mean rank differences, the groups can be ranked, based on their performance” What does “performance” mean in this context?
+“the critical difference value (CD = 1.258 for the 18 and 48 ms data)” How is the CD value determined? What is it for 3 ms?
+
+
