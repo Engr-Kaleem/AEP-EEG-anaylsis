@@ -4,8 +4,8 @@ clear all;
 sub_wise=1;
 chan_wise =1
 frequncey='500'
-stimduration='LLR'
-str=['*LLR','*500hz','*.set']
+stimduration='MLR'
+str=['*MLR','*500hz','*.set']
 
 only_selected_channels=1;
 
@@ -14,7 +14,7 @@ fs = 2048; % Hz
 
 % Set the frequency range of interest
 fmin = 0; % Hz
-fmax = 50; % Hz
+fmax = 55; % Hz
 
 
 filedir='E:\data\epoched';
@@ -54,23 +54,26 @@ for i=1:2:nfiles
     
 
   
-%%
+%%frex       = logspace(log10(10),log10(EEG.srate/5),20);
+times2save = -300:25:500;
+basetime   = [-300 -100];
+timewin    = 300; % in ms
 
      
-    epoch_start = -0.1 % in seconds
-    epoch_end = .5; % in seconds
+    epoch_start = -0.3 % in seconds
+    epoch_end = 0.5; % in seconds
     EEG_in = pop_epoch(EEG_in, { cell2mat(event_in)}, [epoch_start, epoch_end]);
     EEG_anti = pop_epoch(EEG_anti, { cell2mat(event_anti)}, [epoch_start, epoch_end]);
 
     if stimdur == 'LLR'
                   % Set the window length and overlap
-        win_length = 0.17 * fs; % in  mili second window
-        overlap = round(0.99 * win_length); % 50% overlap
+        win_length = 0.25 * fs; % in  mili second window
+        overlap = round(0.97 * win_length); % 50% overlap
         tmin=0
         tmax=.300;
     else
          % Set the window length and overlap
-        win_length = 0.1 * fs; % in  mili second window
+        win_length = 0.10 * fs; % in  mili second window
         overlap = round(0.99 * win_length); % 50% overlap
         tmin=0
         tmax=.100;
@@ -111,8 +114,8 @@ n_channels = size(EEG_in.data, 1);
 
         for ep=1:min(size(EEG_anti.data,3),size(EEG_in.data,3));
                    
-                    [si(:,:,ep), fi, ti]=spectrogram(EEG_in.data(c,:,ep), floor(win_length), overlap,512,fs);
-                    [sa(:,:,ep), fa, ta]=spectrogram(EEG_anti.data(c,:,ep), floor(win_length), overlap,512,fs);
+                    [si(:,:,ep), fi, ti]=spectrogram(EEG_in.data(c,:,ep), floor(win_length), overlap,1024,fs);
+                    [sa(:,:,ep), fa, ta]=spectrogram(EEG_anti.data(c,:,ep), floor(win_length), overlap,1024,fs);
 
 %                 [si(:,:,ep), fi, ti] = stft(EEG_in.data(c,:,ep), fs, 'Window', hamming(win_length), 'OverlapLength', overlap,'FrequencyRange','onesided' );
 %                 [sa(:,:,ep), fa, ta] = stft(EEG_anti.data(c,:,ep), fs, 'Window', hamming(win_length), 'OverlapLength', overlap,'FrequencyRange','onesided');
@@ -123,9 +126,8 @@ n_channels = size(EEG_in.data, 1);
         end
     si_a =mean(si,3);
     sa_a=mean(sa,3);
-    time_axis = linspace(epoch_start, epoch_end, length(ti));
     freq_ind=find(fi<=fmax);
-    time_ind=find(time_axis>=0 & time_axis<=tmax);
+    time_ind=find(ti>=0 & ti<=tmax);
     sdiff(:,:,c,sub)=mag2db(abs(si_a(freq_ind,time_ind)-sa_a(freq_ind,time_ind)));
     % Plot the spectrogram for the current channel
 %     figure;
@@ -155,7 +157,7 @@ if chan_wise
     
     
         figure;
-        imagesc(time_axis(time_ind)*1000, fi(freq_ind), mean(s_chan,3));
+        imagesc(ti(time_ind)*1000, fi(freq_ind), mean(s_chan,3));
         title([EEG_in.chanlocs(c).labels,' ' ,stimduration,' ',frequncey ,' ', 'STFT Average']);
         axis xy;
         colorbar;
@@ -178,7 +180,7 @@ if sub_wise
        
         s_avg(:,:,s)=mean(s_chan,3);
         figure;
-        imagesc(time_axis(time_ind)*1000, fi(freq_ind), mean(s_chan,3));
+        imagesc(ti(time_ind)*1000, fi(freq_ind), mean(s_chan,3));
         title(['sub:',num2str(s),' ' ,stimduration,' ',frequncey ,' ', 'stft Average']);
         axis xy;
         colorbar;
