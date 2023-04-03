@@ -9,6 +9,7 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from scipy.stats import friedmanchisquare,rankdata
 from matplotlib.backends.backend_pdf import PdfPages
+from scipy.stats import chi2
 
 filename = 'E:/Github/AEP-anaylsis/code-Python/audiogramdataonesheet_2.xlsx'
 
@@ -67,7 +68,12 @@ pairwise_differences = np.abs(np.subtract.outer(mean_ranks, mean_ranks))
 # Compute the critical value for the Nemenyi test
 n_groups = len(df_MLR_long['Frequency'].unique())
 n_samples = len(df_MLR_long)
-q_alpha = 2.343 * np.sqrt(n_groups * (n_groups + 1) / (6 * n_samples))
+n=35
+k=5
+alpha=0.05
+q_alpha=np.sqrt(k*(k+1)/(6*n)*chi2.ppf(1-alpha, k))
+print(f'CD={q_alpha}')
+# q_alpha = 2.343 * np.sqrt(n_groups * (n_groups + 1) / (6 * n_samples))
 
 # Perform the post-hoc Nemenyi test for all frequency pairs and save the results to a DataFrame
 results = pd.DataFrame(columns=['Frequency 1', 'Frequency 2', 'Difference in mean ranks', 'Z-value', 'p-value', 'Significant'])
@@ -77,7 +83,8 @@ for i in range(n_groups):
         diff = mean_ranks[i] - mean_ranks[j]
         q = diff / np.sqrt((n_groups * (n_groups + 1)) / (6 * n_samples))
         p = 1 - np.sum(pairwise_differences > np.abs(diff)) / (n_groups * (n_groups - 1) / 2)
-        if np.abs(q) > q_alpha:
+        print(f'mean rak difference={np.abs(diff)}')
+        if np.abs(diff) > q_alpha:
             significant = "Yes"
         else:
             significant = "No"
@@ -103,7 +110,7 @@ print(f"Friedman test: F = {f_value}, p = {p_value}")
 # Create a boxplot to visualize the BMLD values for each frequency level
 f1=plt.figure()
 sns.boxplot(x='Frequency', y='BMLD', data=df_MLR_long)
-plt.title('Boxplot for duration 3ms of BMLD values for each frequency')
+plt.title('Boxplot for duration 18ms of BMLD values for each frequency')
 plt.xlabel('Frequency')
 plt.ylabel('BMLD')
 # plt.show()
@@ -126,10 +133,10 @@ f3=plt.figure()
 # Create a bar chart to visualize the results of the Nemenyi test
 results['Frequency Pair'] = results['Frequency 1'].astype(str) + '-' + results['Frequency 2'].astype(str)
 sns.barplot(x='Frequency Pair', y='Difference in mean ranks', data=results, hue='Significant')
-plt.title('Mean rank differences between each frequency pair for duration 3ms')
+plt.title(f'Mean rank differences between  frequency pair for duration 3ms and CD={q_alpha}')
 plt.xlabel('Frequency pair')
 plt.ylabel('Difference in mean ranks')
-# plt.show()
+plt.show()
 
 
 

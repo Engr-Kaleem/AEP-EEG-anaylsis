@@ -23,6 +23,27 @@ df_MLR_long = df_500_org.iloc[:, [0,5,7]]
 
 
 
+from scipy.stats import f 
+# Set the significance level
+alpha = 0.05
+
+# Set the number of treatments and degrees of freedom
+k = 5
+df = k - 1
+
+# Set the ranks of the treatments
+ranks = np.arange(1, k+1)
+
+# Set the number of observations
+n = 35
+
+# Calculate the critical value of the Studentized range distribution
+q = f.ppf(1 - alpha / (k * (k - 1)), k, (k - 1) * (n - 1))
+
+# Calculate the critical difference value
+CD = 2.343 * np.sqrt(k * (k+1) / (6 * n))
+
+print("Critical difference value:", CD,q)
 
 
 df_MLR_long=df_MLR_long.rename(columns={1000: 'BMLD'})
@@ -55,7 +76,7 @@ pairwise_differences = np.abs(np.subtract.outer(mean_ranks, mean_ranks))
 n_groups = len(df_MLR_long['Type'].unique())
 n_samples = len(df_MLR_long)
 q_alpha = 2.343 * np.sqrt(n_groups * (n_groups + 1) / (6 * n_samples))
-
+print(f' CD={q_alpha}')
 # Perform the post-hoc Nemenyi test for all Type pairs and save the results to a DataFrame
 results = pd.DataFrame(columns=['Type 1', 'Type 2', 'Difference in mean ranks', 'Z-value', 'p-value', 'Significant'])
 index = 0
