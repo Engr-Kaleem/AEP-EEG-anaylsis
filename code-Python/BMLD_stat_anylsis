@@ -21,7 +21,7 @@ df_MLR_org =  df.loc[(df['Type'] == 'ABR') & (df['stim'] == 'BMLD')]
 # df_LLR =  df.loc[(df['Type'] == 'LLR') & (df['stim'] == 'BMLD')]
 # df_ABR =  df.loc[(df['Type'] == 'ABR') & (df['stim'] == 'BMLD')]
 df_MLR = df_MLR_org.drop(columns=['Type', 'stim'])
-print(df_MLR.head)
+# print(df_MLR.head)
 
 freqs=['125Hz',	'250Hz','500Hz'	,'750Hz','1000Hz']
 dur= ['MLR','LLR','ABR']
@@ -36,7 +36,7 @@ df_MLR_long = pd.melt(
 )
 
 # print the long format dataframe
-print(df_MLR_long.tail())
+
 df_MLR_long['Frequency'] = df_MLR_long['Frequency'].astype(float)
 factor = 'Frequency'
 levels = [125, 250, 500, 750, 1000]
@@ -51,30 +51,66 @@ dependent_var = 'BMLD'
 
 f_value, p_value = friedmanchisquare(*[df_MLR_long[df_MLR_long[factor] == level][dependent_var].values for level in df_MLR_long[factor].unique()])
 
+print(df_MLR_long.head())
+print(df_MLR_long.tail())
+
+# for subject in df_MLR_long['Subjects'].unique():
+    # print(subject)
+    
+rank_data = {}
+
+rank_data = {}
+ranks = []
+# Calculate the rank of the BMLD data for each subject across the 5 frequency groups
+for subject in df_MLR_long['Subjects'].unique():
+    subject_data = df_MLR_long[df_MLR_long['Subjects'] == subject]
+    print(subject_data);
+    freq_data = subject_data['BMLD']
+    print(f'freq dat:==={freq_data}')
+    rank = rankdata(freq_data, method='average')
+    print(f'rank===={rank}')
+    rank_data[subject]=rank
+    # ranks.append(rank)
+# rank_data[subject] = ranks
+
+print(rank_data)
+# Calculate the average rank across all subjects for each frequency group
+mean_ranks = []
+for freq_index, freq in enumerate([125, 250, 500, 750, 1000]):
+    freq_ranks = [rank_data[subject][freq_index] for subject in df_MLR_long['Subjects'].unique()]
+    print(f'====={freq_ranks}')
+    mean_rank = np.mean(freq_ranks)
+    mean_ranks.append(mean_rank)
+
+print(f'===========')
+print(f'{mean_ranks}')
 
 
+# # Compute the ranks of the BMLD values for each frequency level
+# df_MLR_long['Rank'] = rankdata(-df_MLR_long['BMLD'].values).astype(int)
+# ranks = np.zeros((len(df_MLR_long['Frequency'].unique()), len(df_MLR_long)))
+# for i, freq in enumerate(df_MLR_long['Frequency'].unique()):
+#     ranks[i, df_MLR_long['Frequency'] == freq] = df_MLR_long[df_MLR_long['Frequency'] == freq]['Rank'].values
 
+# print(df_MLR_long.head())
+# print(df_MLR_long.tail())
 
-# Compute the ranks of the BMLD values for each frequency level
-df_MLR_long['Rank'] = rankdata(-df_MLR_long['BMLD'].values).astype(int)
-ranks = np.zeros((len(df_MLR_long['Frequency'].unique()), len(df_MLR_long)))
-for i, freq in enumerate(df_MLR_long['Frequency'].unique()):
-    ranks[i, df_MLR_long['Frequency'] == freq] = df_MLR_long[df_MLR_long['Frequency'] == freq]['Rank'].values
+# print(ranks)
 
-# Compute the mean ranks and the rank differences between each frequency pair
-mean_ranks = np.mean(ranks, axis=1)
+# # Compute the mean ranks and the rank differences between each frequency pair
+# mean_ranks = np.mean(ranks, axis=1)
 pairwise_differences = np.abs(np.subtract.outer(mean_ranks, mean_ranks))
 
-# Compute the critical value for the Nemenyi test
+# # Compute the critical value for the Nemenyi test
 n_groups = len(df_MLR_long['Frequency'].unique())
 n_samples = len(df_MLR_long)
 n=35
 k=5
 alpha=0.05
 q_alpha=np.sqrt(k*(k+1)/(6*n)*chi2.ppf(1-alpha, k))
-print(f'CD={q_alpha}')
-# q_alpha = 2.343 * np.sqrt(n_groups * (n_groups + 1) / (6 * n_samples))
 
+q_alpha = 2.905 * np.sqrt(n_groups * (n_groups + 1) / (6 * n_samples))
+print(f'CD={q_alpha}')
 # Perform the post-hoc Nemenyi test for all frequency pairs and save the results to a DataFrame
 results = pd.DataFrame(columns=['Frequency 1', 'Frequency 2', 'Difference in mean ranks', 'Z-value', 'p-value', 'Significant'])
 index = 0
@@ -94,36 +130,36 @@ for i in range(n_groups):
 # Save the results DataFrame to a CSV file
 results.to_csv('bml_statistics_ABR.csv', index=False)
 
-# Print the test result
-print(f"Friedman test: F = {f_value:.2f}, p = {p_value:.4f}")
+# # Print the test result
+# print(f"Friedman test: F = {f_value:.2f}, p = {p_value:.4f}")
 
-# Print the test result
-print(f"Friedman test: F = {f_value}, p = {p_value}")
-
-
-
-# # Create a dataframe to store the results
-# index = df_MLR_long['Frequency'].unique()
-# columns = df_MLR_long['Frequency'].unique()
-# df_results = pd.DataFrame(np.array(results).reshape(len(index), len(columns)), index=index, columns=columns)
-
-# Create a boxplot to visualize the BMLD values for each frequency level
-f1=plt.figure()
-sns.boxplot(x='Frequency', y='BMLD', data=df_MLR_long)
-plt.title('Boxplot for duration 18ms of BMLD values for each frequency')
-plt.xlabel('Frequency')
-plt.ylabel('BMLD')
-# plt.show()
+# # Print the test result
+# print(f"Friedman test: F = {f_value}, p = {p_value}")
 
 
 
-f2=plt.figure()
-# Create a heatmap to visualize the pairwise differences in mean ranks between each frequency pair
-sns.heatmap(pairwise_differences, xticklabels=levels, yticklabels=levels, cmap='coolwarm', annot=True, fmt='.2f')
-plt.title('Pairwise differences in mean ranks between each frequency pair for duration 3ms')
-plt.xlabel('Frequency')
-plt.ylabel('Frequency')
-# plt.show()
+# # # Create a dataframe to store the results
+# # index = df_MLR_long['Frequency'].unique()
+# # columns = df_MLR_long['Frequency'].unique()
+# # df_results = pd.DataFrame(np.array(results).reshape(len(index), len(columns)), index=index, columns=columns)
+
+# # Create a boxplot to visualize the BMLD values for each frequency level
+# f1=plt.figure()
+# sns.boxplot(x='Frequency', y='BMLD', data=df_MLR_long)
+# plt.title('Boxplot for duration 18ms of BMLD values for each frequency')
+# plt.xlabel('Frequency')
+# plt.ylabel('BMLD')
+# # plt.show()
+
+
+
+# f2=plt.figure()
+# # Create a heatmap to visualize the pairwise differences in mean ranks between each frequency pair
+# sns.heatmap(pairwise_differences, xticklabels=levels, yticklabels=levels, cmap='coolwarm', annot=True, fmt='.2f')
+# plt.title('Pairwise differences in mean ranks between each frequency pair for duration 3ms')
+# plt.xlabel('Frequency')
+# plt.ylabel('Frequency')
+# # plt.show()
 
 
 
@@ -132,37 +168,43 @@ plt.ylabel('Frequency')
 f3=plt.figure()
 # Create a bar chart to visualize the results of the Nemenyi test
 results['Frequency Pair'] = results['Frequency 1'].astype(str) + '-' + results['Frequency 2'].astype(str)
-sns.barplot(x='Frequency Pair', y='Difference in mean ranks', data=results, hue='Significant')
-plt.title(f'Mean rank differences between  frequency pair for duration 3ms and CD={q_alpha}')
+sns.barplot(x='Frequency Pair', y='Difference in mean ranks', data=results, hue='Significant',hue_order=["Yes", "No"], palette=["blue", "red"])
+plt.title(f'pair wise Mean rank differences : duration 48ms: CD={q_alpha:.4f} Friedman test: F = {f_value:.4f}, p = {p_value:.4f}')
 plt.xlabel('Frequency pair')
 plt.ylabel('Difference in mean ranks')
 plt.show()
 
+plt.errorbar(x=np.arange(k), y=mean_ranks, yerr=q_alpha, fmt="o")
+# plt.plot(np.arange(k), mean_ranks)
+plt.xticks(np.arange(k), levels)
+plt.ylabel("Mean rank")
+plt.xlabel("Frequency(Hz)")
+plt.title(f"Nemenyi plot signal duration 48ms and CD ={q_alpha:0.4f}")
+plt.show()
 
-
-def save_image(filename):
+# def save_image(filename):
     
-    # PdfPages is a wrapper around pdf 
-    # file so there is no clash and create
-    # files with no error.
-    p = PdfPages(filename)
+#     # PdfPages is a wrapper around pdf 
+#     # file so there is no clash and create
+#     # files with no error.
+#     p = PdfPages(filename)
       
-    # get_fignums Return list of existing 
-    # figure numbers
-    fig_nums = plt.get_fignums()  
-    figs = [plt.figure(n) for n in fig_nums]
+#     # get_fignums Return list of existing 
+#     # figure numbers
+#     fig_nums = plt.get_fignums()  
+#     figs = [plt.figure(n) for n in fig_nums]
       
-    # iterating over the numbers in list
-    for fig in figs: 
+#     # iterating over the numbers in list
+#     for fig in figs: 
         
-        # and saving the files
-        fig.savefig(p, format='pdf') 
+#         # and saving the files
+#         fig.savefig(p, format='pdf') 
       
-    # close the object
-    p.close()  
+#     # close the object
+#     p.close()  
   
-# name your Pdf file
-filename = "plots_3ms.pdf"  
+# # name your Pdf file
+# filename = "plots_3ms.pdf"  
   
-# call the function
-save_image(filename) 
+# # call the function
+# save_image(filename) 
