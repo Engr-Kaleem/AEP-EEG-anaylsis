@@ -1,0 +1,36 @@
+
+stftfeat=zeros(sum(epochs),size(smat,1)*size(smat,2));
+erspfeat=zeros(sum(epochs),size(erspmat,1)*size(erspmat,2));
+itcfeat=zeros(sum(epochs),size(itcmat,1)*size(itcmat,2));
+
+ind=1;
+for i=1:length(epochs);
+   for ep=1:epochs(i);
+      s=smat(:,:,ep,i) ;   
+      e=erspmat(:,:,ep,i); 
+      it=itcmat(:,:,ep,i);
+      stftfeat(ind,:)= reshape(s',1,numel(s));
+      erspfeat(ind,:)= reshape(e',1,numel(e));
+      itcfeat(ind,:)= reshape(it',1,numel(it));
+      all_label(ind)=labels(i,ep);
+      ind=ind+1;
+   end
+
+end
+
+
+
+MI1 = mutualinfo(stftfeat,all_label');
+MI2 = mutualinfo(erpsfeat,all_label');
+MI3 = mutualinfo(itcfeat,all_label');
+
+% Select the set with the highest mutual information
+[~, idx] = max([MI1, MI2, MI3]);
+if idx == 1
+    X_selected = S;
+elseif idx == 2
+    X_selected = X2;
+else
+    X_selected = X3;
+end
+save('featuremat.mat', 'stftfeat', 'erspfeat','itcfeat','all_label','epochs'); % save both variables to a file

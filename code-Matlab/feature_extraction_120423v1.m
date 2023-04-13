@@ -26,7 +26,7 @@ baseline_removal = 1;
 epoch_rejection  = 1;
 epoch_reject_max_amplitude = 150;  % If epoch amplitude is higher than that, epoch is rejected
 epoch_reject_min_amplitude = -150; % If epoch amplitude is lower than that, epoch is rejected
-eeg_channel_pos  = 1:3;
+eeg_channel_pos  = 1:5;
 
 sub=1;
  
@@ -46,9 +46,18 @@ for i=1:nfiles
     
 
        
-%     Get the event type names
+%%     Get the event type names
     event_id = unique({EEG_data.event.type});
-   
+
+
+    if strcmp(cell2mat(event_id) ,'AntiPhase')
+       event_label=1;
+    else
+        event_label=0;
+    end
+    event_id
+    event_label
+  %% 
     
 
   
@@ -112,26 +121,28 @@ for i=1:nfiles
 
 
 % % Calculate the STFT for each channel
-n_channels = size(EEG_data.data, 1);
+% n_channels = size(EEG_data.data, 1);
+epochs(i)=size(EEG_data.data,3)
 % hannels
-       for ep=1:min(size(EEG_data.data,3));
-                   for c=1:n_channels;
+       for ep=1:size(EEG_data.data,3);
+                   for c=eeg_channel_pos;
                     [s_c(:,:,c), fi, ti]=spectrogram(EEG_data.data(c,:,ep), floor(win_length), overlap,1024,fs);
+                    [ersp(:,:,c),itc(:,:,c),powbase,times,freqs]= newtimef(EEG_data.data(c,:,ep), EEG_data.pnts, params.tlimits, EEG_data.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
+                   
                    end
                    freq_ind=find(fi<=fmax);
                    time_ind=find(ti>=0 & ti<=tmax);
-                   s=mean(abs(s_c),3)
+                   s=mean(abs(s_c),3);
                    smat(:,:,ep,i)=mag2db(s(freq_ind,time_ind));
-                   [ersp,itc,powbase,times,freqs]= newtimef(EEG_data.data(:,:,ep), EEG_data.pnts, params.tlimits, EEG_data.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
-                    erspmat(:,:,ep,i) =ersp        
-                    itcmat(:,:,epc,i)=itc
-
+                   erspmat(:,:,ep,i) =mean(ersp,3)  ;      
+                   itcmat(:,:,ep,i)=mean(abs(itc),3);
+                   labels(i,ep)=event_label;
                           
                 
         end
 
 end
-
+save('features.mat', 'smat', 'erspmat','itcmat','labels','epochs'); % save both variables to a file
 
 %%
 
