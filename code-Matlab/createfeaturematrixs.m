@@ -43,7 +43,9 @@ for k = 1:size(stft_n,2)
     stftMI(k) = computeMI(stft_n(:,k),labels);
 end
 
-
+disp(['MI ersp: ', num2str(sum(erspMI))]);
+disp(['MI ITC: ', num2str(sum(itcMI))]);
+disp(['MI STFT: ', num2str(sum(stftMI))]);
 
 % 
 % 
@@ -77,4 +79,4 @@ end
 % 
 % 
 % %%
-% save('featuremat.mat', 'stftfeat', 'erspfeat','itcfeat','all_label','epochs'); % save both variables to a file
+save('featuremat.mat', 'stftfeat', 'erspfeat','itcfeat','all_label','epochs'); % save both variables to a file

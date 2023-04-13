@@ -142,23 +142,5 @@ epochs(i)=size(EEG_data.data,3)
         end
 
 end
-save('features.mat', 'smat', 'erspmat','itcmat','labels','epochs'); % save both variables to a file
-
-%%
-
-
-
-%%
-% s_all=mean(s_suba,3);
-% figure;
-% imagesc(ti, fi, mag2db(abs(s_all)));
-% axis xy;
-% colorbar;
-% xlabel('Time (s)');
-% ylabel('Frequency (Hz)');
-% title([stimduration ,' ',frequncey ,' ','All subject avg ']);
-%%
-
-
-
+% save('features.mat', 'smat', 'erspmat','itcmat','labels','epochs'); % save both variables to a file
 
