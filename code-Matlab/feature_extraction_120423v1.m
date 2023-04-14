@@ -127,8 +127,8 @@ epochs(i)=size(EEG_data.data,3)
        for ep=1:size(EEG_data.data,3);
                    for c=eeg_channel_pos;
                     [s_c(:,:,c), fi, ti]=spectrogram(EEG_data.data(c,:,ep), floor(win_length), overlap,1024,fs);
-                    [ersp(:,:,c),itc(:,:,c),powbase,times,freqs]= newtimef(EEG_data.data(c,:,ep), EEG_data.pnts, params.tlimits, EEG_data.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
-                   
+                    [ersp(:,:,c),itcc,powbase,times,freqs]= newtimef(EEG_data.data(c,:,ep), EEG_data.pnts, params.tlimits, EEG_data.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
+                    itc(:,:,c)=abs(itcc);
                    end
                    freq_ind=find(fi<=fmax);
                    time_ind=find(ti>=0 & ti<=tmax);
