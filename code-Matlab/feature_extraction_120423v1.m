@@ -4,8 +4,8 @@ clear all;
 sub_wise=1;
 chan_wise =1
 frequncey='500'
-stimduration='MLR'
-str=['*MLR','*500hz','*.set']
+stimduration='LLR'
+str=['*LLR','*500hz','*.set']
 
 only_selected_channels=1;
 
@@ -15,7 +15,7 @@ fs = 2048; % Hz
 % Set the frequency range of interest
 fmin = 0; % Hz
 fmax = 55; % Hz
-
+nepochs=5
 
 filedir='E:\data\epoched';
 matfiles = dir(fullfile(filedir, str));
@@ -26,7 +26,7 @@ baseline_removal = 1;
 epoch_rejection  = 1;
 epoch_reject_max_amplitude = 150;  % If epoch amplitude is higher than that, epoch is rejected
 epoch_reject_min_amplitude = -150; % If epoch amplitude is lower than that, epoch is rejected
-eeg_channel_pos  = 1:5;
+eeg_channel_pos  = 1:3;
 
 sub=1;
  
@@ -67,7 +67,7 @@ for i=1:nfiles
     timewin    = 300; % in ms
 
      
-    epoch_start = -0.3 % in seconds
+    epoch_start = -0.1 % in seconds
     epoch_end = 0.5; % in seconds
     EEG_data = pop_epoch(EEG_data, { cell2mat(event_id)}, [epoch_start, epoch_end]);
     
@@ -76,20 +76,20 @@ for i=1:nfiles
                   % Set the window length and overlap
         win_length = 0.25 * fs; % in  mili second window
         overlap = round(0.97 * win_length); % 50% overlap
-        tmin=0
-        tmax=.300;
+        tmin=0.05
+        tmax=.250;
         params.tlimits = [-100 300]; % time limits in ms
         params.cycles = [1 0.5]; % number of cycles in each frequency bin
-        params.freqs = [5 100]; % frequency range in Hz
+        params.freqs = [5 55]; % frequency range in Hz
     else
          % Set the window length and overlap
         win_length = 0.10 * fs; % in  mili second window
         overlap = round(0.99 * win_length); % 50% overlap
-        tmin=0
-        tmax=.100;
-        params.tlimits = [-100 100]; % time limits in ms
+        tmin=0.2
+        tmax=.150;
+        params.tlimits = [-100 300]; % time limits in ms
         params.cycles = [1 0.5]; % number of cycles in each frequency bin
-        params.freqs = [5 100]; % frequency range in Hz
+        params.freqs = [5 55]; % frequency range in Hz
     end 
    
     
@@ -127,20 +127,40 @@ epochs(i)=size(EEG_data.data,3)
        for ep=1:size(EEG_data.data,3);
                    for c=eeg_channel_pos;
                     [s_c(:,:,c), fi, ti]=spectrogram(EEG_data.data(c,:,ep), floor(win_length), overlap,1024,fs);
-                    [ersp(:,:,c),itcc,powbase,times,freqs]= newtimef(EEG_data.data(c,:,ep), EEG_data.pnts, params.tlimits, EEG_data.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
-                    itc(:,:,c)=abs(itcc);
+%                     [ersp(:,:,c),itcc,powbase,times,freqs]= newtimef(EEG_data.data(c,:,ep:ep+10), EEG_data.pnts, params.tlimits, EEG_data.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
+%                     itc(:,:,c)=abs(itcc);
                    end
                    freq_ind=find(fi<=fmax);
-                   time_ind=find(ti>=0 & ti<=tmax);
+                   time_ind=find(ti>= tmin & ti<=tmax);
                    s=mean(abs(s_c),3);
                    smat(:,:,ep,i)=mag2db(s(freq_ind,time_ind));
-                   erspmat(:,:,ep,i) =mean(ersp,3)  ;      
-                   itcmat(:,:,ep,i)=mean(abs(itc),3);
-                   labels(i,ep)=event_label;
+%                    erspmat(:,:,ep,i) =mean(ersp,3)  ;      
+%                    itcmat(:,:,ep,i)=mean(abs(itc),3);
+                   labels_stft(i,ep)=event_label;
                           
+                
+       end
+       tlabels(i)=floor(epochs(i)/5);
+       extra_epochs=mod(epochs(i),5);
+       epindx=1;
+       for ep=1:nepochs:(size(EEG_data.data,3)-extra_epochs);
+                   for c=eeg_channel_pos;
+%                    
+                    [ersp(:,:,c),itcc,powbase,times,freqs]= newtimef(EEG_data.data(c,:,ep:ep+nepochs-1), EEG_data.pnts, params.tlimits, EEG_data.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
+                   
+                    itc(:,:,c)=abs(itcc);
+                   end
+%                    freq_ind=find(fi<=fmax);
+                    
+                   time_ind=find(times>=(tmin*1000) & times<=(tmax*1000));
+                   erspmat(:,:,epindx,i) =mean(ersp(:,time_ind),3)  ;      
+                   itcmat(:,:,epindx,i)=mean(abs(itc(:,time_ind)),3);
+                   labels(i,epindx)=event_label;
+                   epindx=epindx+1;      
                 
         end
 
 end
-% save('features.mat', 'smat', 'erspmat','itcmat','labels','epochs'); % save both variables to a file
+%%
+save('features.mat', 'smat', 'erspmat','itcmat','labels','labels_stft','epochs','tlabels'); % save both variables to a file
 

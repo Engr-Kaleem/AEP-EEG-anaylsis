@@ -1,17 +1,31 @@
 close all;
 clear all;
+
 load features.mat
+
 stftfeat=zeros(sum(epochs),size(smat,1)*size(smat,2));
-erspfeat=zeros(sum(epochs),size(erspmat,1)*size(erspmat,2));
-itcfeat=zeros(sum(epochs),size(itcmat,1)*size(itcmat,2));
+erspfeat=zeros(sum(tlabels),size(erspmat,1)*size(erspmat,2));
+itcfeat=zeros(sum(tlabels),size(itcmat,1)*size(itcmat,2));
 
 ind=1;
 for i=1:length(epochs);
    for ep=1:epochs(i);
       s=smat(:,:,ep,i) ;   
+    
+      stftfeat(ind,:)= reshape(s',1,numel(s));
+      stft_label(ind)=labels_stft(i,ep);
+      ind=ind+1;
+   end
+
+end
+
+
+ind=1;
+for i=1:length(tlabels);
+   for ep=1:tlabels(i);
+      
       e=erspmat(:,:,ep,i); 
       it=itcmat(:,:,ep,i);
-      stftfeat(ind,:)= reshape(s',1,numel(s));
       erspfeat(ind,:)= reshape(e',1,numel(e));
       itcfeat(ind,:)= reshape(it',1,numel(it));
       all_label(ind)=labels(i,ep);
@@ -32,21 +46,22 @@ itc_n=normalize(itcfeat);
 
 labels=all_label';
 for k = 1:size(ersp_n,2)   
-    erspMI(k) = computeMI(ersp_n(:,k),labels);
+    erspMI(k) = computeMI(ersp_n(:,k),all_label');
 end
 
 for k = 1:size(itc_n,2)   
-    itcMI(k) = computeMI(itc_n(:,k),labels);
+    itcMI(k) = computeMI(itc_n(:,k),all_label');
 end
 
 for k = 1:size(stft_n,2)   
-    stftMI(k) = computeMI(stft_n(:,k),labels);
+    stftMI(k) = computeMI(stft_n(:,k),stft_label');
 end
+%%
 
-disp(['MI ersp: ', num2str(sum(erspMI))]);
-disp(['MI ITC: ', num2str(sum(itcMI))]);
-disp(['MI STFT: ', num2str(sum(stftMI))]);
-
+disp(['MI ersp: ', num2str(abs(sum(erspMI))/length(all_label))]);
+disp(['MI ITC: ', num2str(abs(sum(itcMI))/length(all_label))]);
+disp(['MI STFT: ', num2str(abs(sum(stftMI))/length(stft_label))]);
+%%
 % 
 % 
 % 
@@ -78,5 +93,6 @@ disp(['MI STFT: ', num2str(sum(stftMI))]);
 % end
 % 
 % 
-% %%
-save('featuremat.mat', 'stftfeat', 'erspfeat','itcfeat','all_label','epochs'); % save both variables to a file
+
+%%
+save('featuremat.mat', 'stftfeat', 'erspfeat','itcfeat','all_label','epochs','stft_label','tlabels'); % save both variables to a file
