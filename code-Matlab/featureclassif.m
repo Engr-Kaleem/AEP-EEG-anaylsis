@@ -2,9 +2,9 @@ close all;
 clear all;
 load featuremat.mat
 
-stft_n=normalize(stftfeat);
-ersp_n=normalize(erspfeat);
-itc_n=normalize(itcfeat);
+stft_n=(stftfeat);
+ersp_n=(erspfeat);
+itc_n=(itcfeat);
 Y=all_label';
 
 %% ersp  feature for classification
