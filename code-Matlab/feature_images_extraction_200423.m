@@ -13,12 +13,12 @@ fs = 2048; % Hz
 % Set the frequency range of interest
 fmin = 0; % Hz
 fmax = 55; % Hz
-nepochs=15
+nepochs=25
 
 filedir='E:\data\epoched';
 matfiles = dir(fullfile(filedir, str));
 nfiles = length(matfiles);
- fn = 'E:\data\images\'
+ 
 %%
 baseline_removal = 1;
 epoch_rejection  = 1;
@@ -48,19 +48,19 @@ for i=1:nfiles
     event_id = unique({EEG_data.event.type});
 
 
-    if strcmp(cell2mat(event_id) ,'AntiPhase')
+    if strcmp(cell2mat(event_id) ,'AntiPhase');
        event_label=1;
-       fns = ['E:\data\results\',stimdur,'\STFT\antiphase\']
-       fne = ['E:\data\results\',stimdur,'\ersp\antiphase\']
-       fni = ['E:\data\results\',stimdur,'\itc\antiphase\']
+       fns = ['E:\results\',stimdur,'\STFT\antiphase\'];
+       fne = ['E:\results\',stimdur,'\ersp\antiphase\'];
+       fni = ['E:\results\',stimdur,'\itc\antiphase\'];
     else
        event_label=0;
-       fns = ['E:\data\results\',stimdur,'STFT\inphase\']
-       fne = ['E:\data\results\',stimdur,'\ersp\inphase\']
-       fni = ['E:\data\results\',stimdur,'\itc\inphase\']
+       fns = ['E:\results\',stimdur,'\STFT\inphase\'];
+       fne = ['E:\results\',stimdur,'\ersp\inphase\'];
+       fni = ['E:\results\',stimdur,'\itc\inphase\'];
     end
-    event_id
-    event_label
+    event_id;
+    event_label;
   %% 
     
 
@@ -120,34 +120,36 @@ for i=1:nfiles
 % % Calculate the STFT for each channel
 % n_channels = size(EEG_data.data, 1);
 epochs(i)=size(EEG_data.data,3)
-% hannels
-%        for ep=1:size(EEG_data.data,3);
-%                    for c=eeg_channel_pos;
-%                     [s, fi, ti]=spectrogram(EEG_data.data(c,:,ep), floor(win_length), overlap,1024,fs);
-%                     freq_ind=find(fi<=fmax);
-%                     time_ind=find(ti>= tmin & ti<=tmax); 
-%                     figure;
-%                     imagesc(ti(time_ind), fi(freq_ind), mag2db(abs(s(freq_ind,time_ind))))
-%                     axis off
-%                     saveas(gcf,[fns,stimduration,'_',frequncey,'_',num2str(ep),'_',num2str(c),'_',cell2mat(event_id),'_STFT.png']);
-%                     close all;
-%                     [ersp,itcc,powbase,times,freqs]= newtimef(EEG_data.data(c,:,ep), EEG_data.pnts, params.tlimits, EEG_data.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
-%                  
-%                                    
-%                     time_ersp=find(times>=(tmin*1000) & times<=(tmax*1000));
-%                     figure;
-%                     imagesc(times(time_ersp), freqs, ersp(:,time_ersp))
-%                     axis off
-%                     saveas(gcf,[fne,stimduration,'_',frequncey,'_',num2str(ep),'_',num2str(c),'_',cell2mat(event_id),'_ersp.png']);
-%                     close all;
-%                          
-%                     labels_stft_ersp(i,ep,c)=event_label
-% 
-%                    
-% 
-%                    end                          
-%                 
-%        end
+
+       for ep=1:size(EEG_data.data,3);
+                   for c=eeg_channel_pos;
+                    [s, fi, ti]=spectrogram(EEG_data.data(c,:,ep), floor(win_length), overlap,1024,fs);
+                    freq_ind=find(fi<=fmax);
+                    time_ind=find(ti>= tmin & ti<=tmax); 
+                    figure;
+                    imagesc(ti(time_ind)*1000, fi(freq_ind), mag2db(abs(s(freq_ind,time_ind))))
+                    axis xy
+                    axis off
+                    saveas(gcf,[fns,stimduration,'_',frequncey,'_',num2str(ep),'_',num2str(c),'_',cell2mat(event_id),'_STFT.png']);
+                    close all;
+                    [ersp,itcc,powbase,times,freqs]= newtimef(EEG_data.data(c,:,ep), EEG_data.pnts, params.tlimits, EEG_data.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
+                 
+                                   
+                    time_ersp=find(times>=(tmin*1000) & times<=(tmax*1000));
+                    figure;
+                    imagesc(times(time_ersp), freqs, ersp(:,time_ersp));
+                    axis xy
+%                     axis off;
+                    saveas(gcf,[fne,stimduration,'_',frequncey,'_',num2str(ep),'_',num2str(c),'_',cell2mat(event_id),'_ersp.png']);
+                    close all;
+                         
+                    labels_stft_ersp(i,ep,c)=event_label;
+
+                   
+
+                   end                          
+                
+       end
 
        tlabels(i)=floor(epochs(i)/5);
        extra_epochs=mod(epochs(i),5);
@@ -157,12 +159,13 @@ epochs(i)=size(EEG_data.data,3)
                                   [ersp,itcc,powbase,times,freqs]= newtimef(EEG_data.data(c,:,ep:ep+nepochs-1), EEG_data.pnts, params.tlimits, EEG_data.srate, params.cycles,'freqs', params.freqs,'plotersp','off','plotitc','off');
                                   time_itc=find(times>=(tmin*1000) & times<=(tmax*1000));
                                   figure;
-                                  imagesc(times(time_itc), freqs, ersp(:,time_itc))
+                                  imagesc(times(time_itc), freqs, abs(itcc(:,time_itc)))
+                                  axis xy
                                   axis off
                                   saveas(gcf,[fni,stimduration,'_',frequncey,'_',num2str(epindx),'_',num2str(c),'_',cell2mat(event_id),'_itc.png']);
                                   close all;
                                   label_itc(i,epindx,c)=event_label;
-                                  ep
+                                  
                    end
 %                              
                    
@@ -173,5 +176,5 @@ epochs(i)=size(EEG_data.data,3)
 
 end
 %%
- save('imagefeaturelabels.mat', 'labels_itc','labels_stft_ersp','epochs','tlabels'); % save both variables to a file
+ save('imagefeaturelabels.mat', 'label_itc','labels_stft_ersp','epochs','tlabels'); % save both variables to a file
 
